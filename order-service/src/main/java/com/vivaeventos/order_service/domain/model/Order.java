@@ -1,11 +1,14 @@
 package com.vivaeventos.order_service.domain.model;
 
+import com.vivaeventos.order_service.domain.exception.EstadoPedidoInvalido;
+import lombok.Getter;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+
 
 @Getter
 public class Order {
@@ -50,21 +53,21 @@ public class Order {
 
     public void expire() {
         if (this.status != OrderStatus.CREATED && this.status != OrderStatus.PENDING) {
-            throw new IllegalStateException("Solo se puede expirar una orden CREATED o PENDING");
+            throw new EstadoPedidoInvalido("Solo se puede expirar una orden CREATED o PENDING");
         }
         this.status = OrderStatus.EXPIRED;
     }
 
     public void confirm() {
         if (this.status != OrderStatus.PENDING) {
-            throw new IllegalStateException("Solo se puede confirmar una orden PENDING");
+            throw new EstadoPedidoInvalido("Solo se puede confirmar una orden PENDING");
         }
         this.status = OrderStatus.CONFIRMED;
     }
 
     public void markAsPending() {
         if (this.status != OrderStatus.CREATED) {
-            throw new IllegalStateException("Solo se puede pasar a PENDING desde CREATED");
+            throw new EstadoPedidoInvalido("Solo se puede pasar a PENDING desde CREATED");
         }
         this.status = OrderStatus.PENDING;
     }

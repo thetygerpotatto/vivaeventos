@@ -1,4 +1,6 @@
-package com.eventos.order_service.domain.model;
+package com.vivaeventos.order_service.domain.model;
+
+import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.util.UUID;
