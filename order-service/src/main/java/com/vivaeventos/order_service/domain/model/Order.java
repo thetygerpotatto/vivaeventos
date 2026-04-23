@@ -1,6 +1,10 @@
 package com.vivaeventos.order_service.domain.model;
 
 import com.vivaeventos.order_service.domain.exception.EstadoPedidoInvalido;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 
 import java.math.BigDecimal;
@@ -9,13 +13,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-
+@Entity
+@Table(name = "orders")
 @Getter
 public class Order {
 
     private static final int RESERVATION_MINUTES = 10;
 
+    @Id
     private UUID id;
+    @Column(nullable = false)
     private UUID eventId;
     private UUID buyerId;
     private List<OrderItem> items;
