@@ -149,17 +149,17 @@ FIXED      → descuento por valor fijo (ej: $10.000)
 
 ## Estado actual del desarrollo
 
-| Componente                                                                                | Estado     |
-|-------------------------------------------------------------------------------------------|------------|
-| Modelos del dominio (`Order`, `OrderItem`, `OrderStatus`, `DiscountCode`, `DiscountType`) | Completo   |
-| Excepciones del dominio                                                                   | Completo   |
-| Repositorios (`IOrderRepository`, `IDiscountCodeRepository`)                              | Completo   |
-| Interfaz de servicio (`IOrderService`)                                                    | Completo   |
-| Implementación de servicio (`OrderServiceImpl`)                                           | Completo   |
-| Anotaciones JPA en modelos                                                                | Pendiente  |
-| DTOs de entrada y salida                                                                  | Pendiente  |
-| Controller REST (`OrderController`)                                                       | Pendiente  |
-| Manejo global de excepciones (`GlobalExceptionHandler`)                                   | Pendiente  |
+| Componente                                                                                | Estado    |
+|-------------------------------------------------------------------------------------------|-----------|
+| Modelos del dominio (`Order`, `OrderItem`, `OrderStatus`, `DiscountCode`, `DiscountType`) | Completo  |
+| Excepciones del dominio                                                                   | Completo  |
+| Repositorios (`IOrderRepository`, `IDiscountCodeRepository`)                              | Completo  |
+| Interfaz de servicio (`IOrderService`)                                                    | Completo  |
+| Implementación de servicio (`OrderServiceImpl`)                                           | Completo  |
+| Anotaciones JPA en modelos                                                                | Completo  |
+| DTOs de entrada y salida                                                                  | Pendiente |
+| Controller REST (`OrderController`)                                                       | Pendiente |
+| Manejo global de excepciones (`GlobalExceptionHandler`)                                   | Pendiente |
 | Configuración Docker + PostgreSQL                                                         | Pendiente |
 | Pruebas unitarias                                                                         | Pendiente |
 
