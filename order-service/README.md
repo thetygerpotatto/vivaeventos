@@ -27,7 +27,11 @@ Este repositorio es un **monorepo** que contiene todos los microservicios del si
 ```
 vivaeventos-backend/
 ├── order-service/         ← este servicio
-
+├── event-service/
+├── payment-service/
+├── notification-service/
+├── ticket-service/
+└── docker-compose.yml
 ```
 
 ---
@@ -48,10 +52,11 @@ vivaeventos-backend/
 
 | Herramienta     | Versión | Uso                            |
 |-----------------|---------|--------------------------------|
-| Java            | 21      | Lenguaje principal             |
+| Java            | 17      | Lenguaje principal             |
 | Spring Boot     | 3.2.x   | Framework base                 |
 | Spring Data JPA | —       | Persistencia                   |
 | PostgreSQL      | —       | Base de datos producción       |
+| H2              | —       | Base de datos desarrollo local |
 | Lombok          | —       | Reducción de código repetitivo |
 | Maven           | —       | Gestión de dependencias        |
 | Docker          | —       | Contenedores                   |
@@ -62,22 +67,26 @@ vivaeventos-backend/
 
 ```
 order-service/
-└── src/main/java/com/vivaeventos/orderservice/
+├── src/main/resources/
+│   ├── application.properties       # Configuración del servicio
+│   └── banner.txt                   # Banner personalizado de arranque
+│
+└── src/main/java/com/vivaeventos/order_service/
     │
     ├── domain/
     │   ├── model/
-    │   │   ├── Order.java               # Entidad principal de orden
-    │   │   ├── OrderItem.java           # Ítem dentro de una orden
+    │   │   ├── Order.java               # Entidad JPA principal de orden
+    │   │   ├── OrderItem.java           # Entidad JPA ítem dentro de una orden
     │   │   ├── OrderStatus.java         # Enum de estados de la orden
-    │   │   ├── DiscountCode.java        # Modelo de código de descuento
+    │   │   ├── DiscountCode.java        # Entidad JPA de código de descuento
     │   │   └── DiscountType.java        # Enum: PERCENTAGE o FIXED
     │   │
     │   ├── exception/
-    │   │   ├── OrderNotFoundException.java
-    │   │   ├── OrderExpiredException.java
-    │   │   ├── InsufficientStockException.java
-    │   │   ├── InvalidDiscountCodeException.java
-    │   │   └── InvalidOrderStateException.java
+    │   │   ├── OrderNoEncontradaException.java
+    │   │   ├── OrdenExpiradaException.java
+    │   │   ├── StockInsuficienteException.java
+    │   │   ├── CodigoDescuentoInvalidoException.java
+    │   │   └── EstadoPedidoInvalido.java
     │   │
     │   ├── repository/
     │   │   ├── IOrderRepository.java          # Extiende JpaRepository
@@ -85,31 +94,37 @@ order-service/
     │   │
     │   └── service/
     │       ├── IOrderService.java             # Firmas de casos de uso
-    │       └── OrderServiceImpl.java          # Implementación
+    │       └── OrderServiceImpl.java          # Implementación con inyección por constructor
     │
     └── delivery/
         ├── rest/
-        │   └── OrderController.java
+        │   ├── dto/
+        │   │   ├── CreateOrderRequest.java    # Request para crear orden (con validaciones)
+        │   │   ├── OrderItemRequest.java      # Request para ítem de orden (con validaciones)
+        │   │   ├── ApplyDiscountRequest.java  # Request para aplicar descuento
+        │   │   ├── OrderResponse.java         # Response con datos completos de la orden
+        │   │   └── OrderItemResponse.java     # Response con datos del ítem
+        │   └── OrderController.java           # Endpoints REST (pendiente)
         └── exception/
-            └── GlobalExceptionHandler.java
+            └── GlobalExceptionHandler.java    # Manejo global de errores (pendiente)
 ```
 
 ---
 
 ## Decisiones de arquitectura
 
-### Arquitectura por capas
+### Arquitectura por capas (estructura del profesor)
 
 Se adoptó la estructura de capas definida por el docente, que es una variante simplificada de Clean Architecture:
 
-| Capa                 | Responsabilidad                              |
-|----------------------|----------------------------------------------|
-| `domain/model`       | Entidades y enums del negocio                |
-| `domain/exception`   | Excepciones propias del dominio              |
-| `domain/repository`  | Interfaces de acceso a datos (JpaRepository) |
-| `domain/service`     | Lógica de negocio e interfaz de casos de uso |
-| `delivery/rest`      | Controllers REST y DTOs                      |
-| `delivery/exception` | Manejo global de excepciones HTTP            |
+| Capa                  | Responsabilidad                              |
+|-----------------------|----------------------------------------------|
+| `domain/model`        | Entidades y enums del negocio                |
+| `domain/exception`    | Excepciones propias del dominio              |
+| `domain/repository`   | Interfaces de acceso a datos (JpaRepository) |
+| `domain/service`      | Lógica de negocio e interfaz de casos de uso |
+| `delivery/rest`       | Controllers REST y DTOs                      |
+| `delivery/exception`  | Manejo global de excepciones HTTP            |
 
 ### Decisiones puntuales
 
@@ -118,6 +133,10 @@ Se adoptó la estructura de capas definida por el docente, que es una variante s
 - **Lógica de negocio en el dominio:** métodos como `expire()`, `confirm()`, `isExpired()` y `calculateDiscount()` viven en los modelos porque son reglas de negocio puras, no orquestación.
 - **`OrderStatus` como enum:** protege las transiciones de estado inválidas directamente en el dominio.
 - **H2 para desarrollo local:** permite levantar el servicio sin necesidad de PostgreSQL instalado durante el desarrollo inicial.
+- **Records como DTOs:** se usan `record` de Java para los DTOs de request y response — son inmutables, concisos y no necesitan boilerplate.
+- **Método estático `from()` en responses:** cada DTO de respuesta tiene un método `from(Model)` que encapsula el mapeo del dominio al DTO, manteniendo el controller limpio.
+- **`@Valid` anidado en `CreateOrderRequest`:** la anotación `@Valid` sobre la lista de ítems garantiza que cada `OrderItemRequest` también sea validado automáticamente por Spring.
+- **`Collections.unmodifiableList` en `Order.getItems()`:** evita que código externo modifique la lista de ítems saltándose el método `addItem()` y su lógica de negocio.
 
 ---
 
@@ -152,14 +171,17 @@ FIXED      → descuento por valor fijo (ej: $10.000)
 | Componente                                                                                | Estado    |
 |-------------------------------------------------------------------------------------------|-----------|
 | Modelos del dominio (`Order`, `OrderItem`, `OrderStatus`, `DiscountCode`, `DiscountType`) | Completo  |
+| Anotaciones JPA en modelos                                                                | Completo  |
 | Excepciones del dominio                                                                   | Completo  |
 | Repositorios (`IOrderRepository`, `IDiscountCodeRepository`)                              | Completo  |
 | Interfaz de servicio (`IOrderService`)                                                    | Completo  |
 | Implementación de servicio (`OrderServiceImpl`)                                           | Completo  |
-| Anotaciones JPA en modelos                                                                | Completo  |
-| DTOs de entrada y salida                                                                  | Pendiente |
+| DTOs de entrada (`CreateOrderRequest`, `OrderItemRequest`, `ApplyDiscountRequest`)        | Completo  |
+| DTOs de salida (`OrderResponse`, `OrderItemResponse`)                                     | Completo  |
+| Banner de arranque (`banner.txt`)                                                         | Completo  |
 | Controller REST (`OrderController`)                                                       | Pendiente |
 | Manejo global de excepciones (`GlobalExceptionHandler`)                                   | Pendiente |
+| Actuator (`/health`, `/info`, `/metrics`)                                                 | Pendiente |
 | Configuración Docker + PostgreSQL                                                         | Pendiente |
 | Pruebas unitarias                                                                         | Pendiente |
 
