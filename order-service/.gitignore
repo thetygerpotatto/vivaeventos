@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+### POSTMAN ###
+.postman/
+*.postman_collection.json.bak
