@@ -1,0 +1,37 @@
+$kind: http-request
+name: 2. Consultar orden por ID
+method: GET
+url: "{{baseUrl}}/api/v1/orders/{{orderId}}"
+order: 3791091617760338
+scripts:
+  - type: afterResponse
+    code: |-
+      // Test 1: Status 200 - Orden encontrada
+      pm.test("Status 200 - Orden encontrada", function () {
+          pm.response.to.have.status(200);
+      });
+      // Test 2: El id coincide con el buscado
+      pm.test("El orderId coincide con el buscado", function () {
+          pm.expect(pm.response.json().orderId).to.eql(pm.environment.get("orderId"));
+      });
+      // Test 3: Tiene campo status
+      pm.test("Tiene campo status", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("status");
+      });
+      // Test 4: El campo status no está vacío
+      pm.test("El campo status no está vacío", function () {
+          const json = pm.response.json();
+          pm.expect(json.status).to.be.a("string").and.not.empty;
+      });
+      // Test 5: Tiene campo items
+      pm.test("Tiene campo items", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("items");
+      });
+      // Test 6: El buyerId coincide con el del environment
+      pm.test("El buyerId coincide con el del environment", function () {
+          const json = pm.response.json();
+          pm.expect(json.buyerId).to.eql(pm.environment.get("buyerId"));
+      });
+    language: text/javascript

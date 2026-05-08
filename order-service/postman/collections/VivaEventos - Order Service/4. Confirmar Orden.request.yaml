@@ -1,0 +1,45 @@
+$kind: http-request
+name: 4. Confirmar Orden
+method: PATCH
+url: http://localhost:8081/api/v1/orders/4e4505b6-17f5-4104-8ad2-a2a7884d629b/confirm
+order: 7000
+scripts:
+  - type: afterResponse
+    code: |-
+      const response = pm.response.json();
+      const status = pm.response.code;
+
+      pm.test("Respuesta es 200 o 409", function () {
+          pm.expect(status).to.be.oneOf([200, 409]);
+      });
+
+      if (status === 200) {
+          pm.test("Respuesta tiene orderId", function () {
+              pm.expect(response).to.have.property('orderId');
+          });
+
+          pm.test("El orderId coincide con el del environment", function () {
+              pm.expect(response.orderId).to.eql(pm.environment.get("orderId"));
+          });
+
+          pm.test("Estado es CONFIRMED", function () {
+              pm.expect(response.status).to.eql('CONFIRMED');
+          });
+
+          pm.test("Tiene campo items", function () {
+              pm.expect(response).to.have.property('items');
+          });
+
+          pm.test("El buyerId coincide con el del environment", function () {
+              pm.expect(response.buyerId).to.eql(pm.environment.get("buyerId"));
+          });
+      } else {
+          pm.test("409 - transición de estado inválida manejada correctamente", function () {
+              pm.expect(status).to.eql(409);
+          });
+
+          pm.test("Error controlado con mensaje", function () {
+              pm.expect(response).to.have.property('error');
+          });
+      }
+    language: text/javascript

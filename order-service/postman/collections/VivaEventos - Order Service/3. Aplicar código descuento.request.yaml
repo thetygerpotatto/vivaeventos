@@ -1,0 +1,50 @@
+$kind: http-request
+name: 3. Aplicar código descuento
+method: POST
+url: "{{baseUrl}}/api/v1/orders/{{orderId}}/discount"
+order: 4480501821217580
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+        "discountCode": "PROMO10"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      // Este endpoint puede dar 422 si el código no existe - eso es comportamiento válido
+      const response = pm.response.json();
+      const status = pm.response.code;
+
+      pm.test("Respuesta es 200 o 422", function () {
+          pm.expect(status).to.be.oneOf([200, 422]);
+      });
+
+      if (status === 200) {
+          pm.test("Respuesta tiene orderId", function () {
+              pm.expect(response).to.have.property('orderId');
+          });
+
+          pm.test("El orderId coincide con el del environment", function () {
+              pm.expect(response.orderId).to.eql(pm.environment.get("orderId"));
+          });
+
+          pm.test("El total es un número positivo", function () {
+              pm.expect(response.total).to.be.a('number').and.above(0);
+          });
+
+          pm.test("Tiene descuento aplicado", function () {
+              pm.expect(response.discountAmount).to.be.above(0);
+          });
+      } else {
+          pm.test("Error controlado con mensaje", function () {
+              pm.expect(response).to.have.property('error');
+          });
+
+          pm.test("Status 422 - código inválido manejado correctamente", function () {
+              pm.expect(status).to.eql(422);
+          });
+      }
+    language: text/javascript
