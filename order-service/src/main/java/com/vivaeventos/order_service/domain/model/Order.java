@@ -27,7 +27,7 @@ public class Order {
     @Column(nullable = false)
     private UUID buyerId;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "order_id")
     private List<OrderItem> items = new ArrayList<>();
 

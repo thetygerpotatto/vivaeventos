@@ -1,0 +1,26 @@
+name: order-service - Local
+values:
+  - key: baseUrl
+    value: 'http://localhost:8081'
+    enabled: true
+    type: default
+  - key: orderId
+    value: ''
+    enabled: true
+    type: default
+  - key: buyerId
+    value: '00000000-0000-0000-0000-000000000001'
+    enabled: true
+    type: default
+  - key: eventId
+    value: '00000000-0000-0000-0000-000000000002'
+    enabled: true
+    type: default
+  - key: ticketTypeId
+    value: '00000000-0000-0000-0000-000000000003'
+    enabled: true
+    type: default
+  - key: discountCode
+    value: ''
+    enabled: true
+    type: default

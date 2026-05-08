@@ -1,0 +1,14 @@
+$kind: http-request
+name: Apply Discount
+method: POST
+url: '{{baseUrl}}/api/v1/orders/{{orderId}}/discount'
+order: 5000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "discountCode": "{{discountCode}}"
+    }

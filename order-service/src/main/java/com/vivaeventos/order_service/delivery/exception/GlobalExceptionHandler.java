@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "com.vivaeventos.order_service.delivery")
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(OrdenNoEncontradaException.class)

@@ -1,0 +1,5 @@
+$kind: http-request
+name: Get Orders by Buyer
+method: GET
+url: '{{baseUrl}}/api/v1/orders/buyer/{{buyerId}}'
+order: 3000
