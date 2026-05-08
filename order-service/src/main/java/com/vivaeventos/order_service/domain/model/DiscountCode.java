@@ -19,10 +19,10 @@ public class DiscountCode {
     private String code;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "VARCHAR(20)")
     private DiscountType type;
 
-    @Column(nullable = false, precision = 19, scale = 2)
+    @Column(name = "discount_value", nullable = false, precision = 19, scale = 2, columnDefinition = "VARCHAR(20)")
     private BigDecimal value;
 
     @Column(nullable = false)

@@ -32,7 +32,7 @@ public class Order {
     private List<OrderItem> items = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "VARCHAR(20)")
     private OrderStatus status;
 
     @Column(nullable = false, precision = 19, scale = 2)
