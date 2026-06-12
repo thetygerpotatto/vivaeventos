@@ -1,0 +1,32 @@
+# ===== IDEs =====
+.idea/
+*.iml
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# ===== Maven =====
+**/target/
+**/mvnw
+**/mvnw.cmd
+**/.mvn/
+
+# ===== Variables de entorno y secretos =====
+.env
+*.env
+**/application-local.properties
+**/application-secrets.properties
+
+# ===== Logs =====
+*.log
+**/logs/
+
+# ===== Sistema operativo =====
+.DS_Store
+Thumbs.db
+
+# ===== Docker =====
+# (el docker-compose.yml SÍ se sube, pero no esto)
+.docker/

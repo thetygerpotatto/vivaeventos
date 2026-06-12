@@ -1,0 +1,43 @@
+$kind: http-request
+name: 5. Expirar Orden
+url: "{{baseUrl}}/api/v1/orders/{{orderId}}/expire"
+method: PATCH
+scripts:
+  - type: afterResponse
+    code: |-
+      // Test 1: Status 200 - Orden expirada
+      pm.test("Status 200 - Orden expirada", function () {
+          pm.response.to.have.status(200);
+      });
+
+      // Test 2: Estado es EXPIRED
+      pm.test("Estado es EXPIRED", function () {
+          const json = pm.response.json();
+          pm.expect(json.status).to.eql("EXPIRED");
+      });
+
+      // Test 3: Respuesta contiene orderId
+      pm.test("Respuesta contiene orderId", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property('orderId');
+      });
+
+      // Test 4: El orderId coincide con el del environment
+      pm.test("El orderId coincide con el del environment", function () {
+          const json = pm.response.json();
+          pm.expect(json.orderId).to.eql(pm.environment.get("orderId"));
+      });
+
+      // Test 5: El campo status no está vacío
+      pm.test("El campo status no está vacío", function () {
+          const json = pm.response.json();
+          pm.expect(json.status).to.be.a("string").and.not.empty;
+      });
+
+      // Test 6: El buyerId coincide con el del environment
+      pm.test("El buyerId coincide con el del environment", function () {
+          const json = pm.response.json();
+          pm.expect(json.buyerId).to.eql(pm.environment.get("buyerId"));
+      });
+    language: text/javascript
+order: 4495427840644104

@@ -1,0 +1,14 @@
+name: order-service - Local
+values:
+  - key: baseUrl
+    value: ''
+  - key: orderId
+    value: ''
+  - key: buyerId
+    value: ''
+  - key: eventId
+    value: ''
+  - key: ticketTypeId
+    value: ''
+  - key: discountCode
+    value: ''
